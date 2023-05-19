@@ -1,0 +1,66 @@
+﻿@page "/category/{id:int}/{categoryName}"
+@using Expert.WebShop.Zavrsni.Models;
+@inject HttpClient httpClient
+@inject NavigationManager navManager
+<PageTitle>@category.CategoryName | Expert</PageTitle>
+<h3>@category.CategoryName</h3>
+
+
+<div>
+@foreach(var item in products){
+<div class="card" style="width: 18rem;">
+    <img class="card-img-top" src="@item.ImagePath" alt="Card image cap">
+    <div class="card-body">
+        <h5 class="card-title">@item.ProductName</h5>
+        <p class="card-text">@item.ProductDescription</p>
+        <a href="#" class="btn btn-primary">Details</a>
+    </div>
+</div>
+}
+</div>
+@code {
+    [Parameter]
+    public int id { get; set; }
+    [Parameter]
+    public string categoryName { get; set; }
+
+    private Category category = new Category();
+    private List<Product> products = new List<Product>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        category = await GetCategory(id);
+        products = await GetProducts(id);
+        navManager.LocationChanged += LocationChanged;
+    } 
+
+    private async Task<Category> GetCategory(int categoryId)
+    {
+        var result = await httpClient.GetAsync($"https://expertshopapi.azurewebsites.net/api/Categories/{id}");
+        if (result.IsSuccessStatusCode)
+        {
+            category = await result.Content.ReadFromJsonAsync<Category>();
+        }
+        return category;
+    }
+
+    private async Task<List<Product>> GetProducts(int categoryId)
+    {
+        var result = await httpClient.GetAsync($"https://expertshopapi.azurewebsites.net/api/Products/category-products/{id}");
+        if (result.IsSuccessStatusCode)
+        {
+            products = await result.Content.ReadFromJsonAsync<List<Product>>();
+        }
+        return products;
+    }
+
+    async void LocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        var result = await httpClient.GetAsync($"https://expertshopapi.azurewebsites.net/api/Categories/{id}");
+
+        category = await result.Content.ReadFromJsonAsync<Category>();
+        products = await GetProducts(id);
+
+        StateHasChanged();
+    }
+}

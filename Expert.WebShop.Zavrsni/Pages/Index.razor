@@ -1,9 +1,23 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<PageTitle>WebShop | Expert</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Dobrodošli u WebShop</h1>
 
-Welcome to your new app.
+Naši najnoviji proizvodi
+@*<div>
+@foreach(var item in products){
+<div class="card" style="width: 18rem;">
+    <img class="card-img-top" src="@item.ImagePath" alt="Card image cap">
+    <div class="card-body">
+        <h5 class="card-title">@item.ProductName</h5>
+        <p class="card-text">@item.ProductDescription</p>
+        <a href="#" class="btn btn-primary">Details</a>
+    </div>
+</div>
+}
+</div>*@
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code{
+
+}
