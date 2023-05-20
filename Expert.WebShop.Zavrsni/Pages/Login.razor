@@ -1,10 +1,38 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@inject IAuthorizationService AuthorizationService
+﻿@page "/login"
+@using Expert.WebShop.Zavrsni.Models;
+@inject HttpClient httpClient
+@inject NavigationManager NavManager
 
+<div class="main">
 <h3>Login</h3>
 
 
+<form @onsubmit="()=>Submit(username, password)">
+    <label for="username">Korisničko ime: </label>>
+    <input type="text" @bind-value="username" id="username" />
+    <br />
+    <label for="password">Lozinka:</label>
+    <input type="password" @bind-value="password" id="password" />
+    <button type="button" @onclick="()=>Submit(username, password)">Login</button>
+</form>
 
+
+</div>
 @code {
+    private Users user = new Users();
+    string username="";
+    string password="";
 
+    private void Submit(string username, string password)
+    {
+        if (username == "admin" && password == "admin")
+        {
+            Console.WriteLine("Uspješna prijava!!!!!!!");
+            NavManager.NavigateTo("/");
+            AuthorizationResult.Success();
+        }
+        else
+            Console.WriteLine("Fuck Of!!!");
+            
+    }
 }
