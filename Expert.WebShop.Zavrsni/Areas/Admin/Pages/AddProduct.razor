@@ -1,0 +1,71 @@
+﻿@using Expert.WebShop.Zavrsni.Models;
+@inject HttpClient httpClient
+@inject NavigationManager navManager
+@page "/Admin/novi-prozvod"
+
+<h3>Dodaj novi proizvod</h3>
+@if (IsError)
+{
+    <p class="alert-danger">Spremanje proizvoda nije uspjelo! Pokušajte ponovno!</p>
+}
+<form @onsubmit="Submit">
+    <select class="form-select" @bind="products.CategoryId" aria-label="Default select example">
+        <option selected>Odaberite kategoriju proizvoda!</option>
+        @foreach(var item in categories)
+        {
+            <option value="@item.Id">@item.CategoryName</option>
+        }
+    </select>
+    <div class="mb-3">
+        <label for="NazivProizvoda" class="form-label">Naziv proizvoda</label>
+        <input type="text" @bind-value="products.ProductName" class="form-control" id="NazivProizvoda" required>
+    </div>
+    <div class="mb-3">
+        <label for="OpisProizvoda" class="form-label">Opis proizvoda</label>
+        <input type="text" @bind-value="products.ProductDescription" class="form-control" id="OpisProizvoda" aria-describedby="OpisHelp">
+        <div id="OpisHelp" class="form-text">Nije obavezno</div>
+    </div>
+    <div class="mb-3">
+        <label for="CijenaProizvoda" class="form-label">Cijena proizvoda</label>
+        <input type="number" @bind-value="products.ProductPrice" class="form-control" id="CijenaProizvoda">
+    </div>
+    <div class="mb-3">
+        <label for="Popust" class="form-label">Popust</label>
+        <input type="number" @bind-value="products.Discount" class="form-control" id="Popust" aria-describedby="PopustHelp">
+        <div id="PopustHelp" class="form-text">Ukoliko nema popusta, ostavite vrijednost na 0</div>
+    </div>
+    <div class="mb-3">
+        <label for="UrlSlike" class="form-label">Url slike</label>
+        <input type="url" @bind-value="products.ImagePath" class="form-control" id="UrlSlike">
+    </div>
+    <button type="submit" class="btn btn-primary">Spremi proizvod</button>
+
+</form>
+
+
+@code {
+    private List<Category> categories = new List<Category>();
+    private Product products = new Product();
+    bool IsError = false;
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await httpClient.GetAsync("https://expertshopapi.azurewebsites.net/api/Categories");
+        if (result.IsSuccessStatusCode)
+        {
+            categories = await result.Content.ReadFromJsonAsync<List<Category>>();
+        }
+
+    }
+
+    private async Task Submit()
+    {
+        var result = await httpClient.PostAsJsonAsync("https://expertshopapi.azurewebsites.net/api/Products", products);
+        if (result.IsSuccessStatusCode)
+        {
+            navManager.NavigateTo("/Admin/lista-proizvoda");
+        }
+        else
+            IsError = true;
+            StateHasChanged();
+    }
+}
