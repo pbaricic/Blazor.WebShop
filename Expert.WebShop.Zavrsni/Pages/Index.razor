@@ -1,6 +1,8 @@
 ﻿@page "/"
 @using Expert.WebShop.Zavrsni.Models;
 @inject HttpClient httpClient
+@inject NotificationService NotificationService
+@inject NavigationManager navManager
 
 <PageTitle>WebShop | Expert</PageTitle>
 
@@ -18,7 +20,7 @@ Naši najnoviji proizvodi
                     <div class="card-body">
                         <h5 class="card-title">@item.ProductName</h5>
                         <p class="card-text">@item.ProductDescription</p>
-                        <a href="#" class="btn btn-primary">Buy</a>
+                        <RadzenButton Click="(()=> {ShowNotification(item.ProductName); Buy(); })" Text="Dodaj u košaricu"></RadzenButton>
                     </div>
                 </div>
             </div>
@@ -43,5 +45,16 @@ Naši najnoviji proizvodi
             products = await result.Content.ReadFromJsonAsync<List<Product>>();
         }
         return products;
+    }
+
+    private void Buy()
+    {
+        
+    }
+
+    void ShowNotification(string productName)
+    {
+        var message = new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Dodano u košaricu", Detail = $"Uspješno ste dodali proizvod {productName} u košaricu!", Duration = 6000 };
+        NotificationService.Notify(message);  
     }
 }
