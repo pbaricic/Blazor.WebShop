@@ -3,6 +3,7 @@
 @inject HttpClient httpClient
 @inject NotificationService NotificationService
 @inject NavigationManager navManager
+@inject ShoppingCartInMemory shoppingCart
 
 <PageTitle>WebShop | Expert</PageTitle>
 
@@ -20,7 +21,7 @@ Naši najnoviji proizvodi
                     <div class="card-body">
                         <h5 class="card-title">@item.ProductName</h5>
                         <p class="card-text">@item.ProductDescription</p>
-                        <RadzenButton Click="(()=> {ShowNotification(item.ProductName); Buy(); })" Text="Dodaj u košaricu"></RadzenButton>
+                        <RadzenButton Click="(()=> {shoppingCart.AddToShoppingCart(item.Id); ShowNotification(item.ProductName); })" Text="Dodaj u košaricu"></RadzenButton>
                     </div>
                 </div>
             </div>
