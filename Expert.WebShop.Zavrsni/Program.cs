@@ -1,4 +1,5 @@
 using Expert.WebShop.Zavrsni;
+using Expert.WebShop.Zavrsni.Models;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
@@ -12,5 +13,6 @@ builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ContextMenuService>();
+builder.Services.AddScoped<ShoppingCartInMemory>();
 
 await builder.Build().RunAsync();

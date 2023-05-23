@@ -1,5 +1,5 @@
 ﻿using System.Net.Http.Json;
-using System.Net.WebSockets;
+
 
 namespace Expert.WebShop.Zavrsni.Models
 {
@@ -17,7 +17,7 @@ namespace Expert.WebShop.Zavrsni.Models
 
         public async Task AddToShoppingCart(int productId)
         {
-            if(SelectedItems.FirstOrDefault(x=>x.ProductId == productId) == null)
+            if (SelectedItems.FirstOrDefault(x => x.ProductId == productId) == null)
             {
                 var result = await _httpClient.GetAsync($"https://expertshopapi.azurewebsites.net/api/Products/{productId}");
                 if (result.IsSuccessStatusCode)
@@ -27,10 +27,17 @@ namespace Expert.WebShop.Zavrsni.Models
                     addToList.Product = addProduct;
                     addToList.ProductId = addProduct.Id;
                     addToList.NumberOfItems = 1;
-                    SelectedItems.Add(addToList);  
+                    SelectedItems.Add(addToList);
                 }
             }
+            else
+            {
+                if (SelectedItems.FirstOrDefault(x => x.ProductId == productId) != null)
+                {
+                   
+                }
 
+            }
         }
     }
 }

@@ -1,0 +1,66 @@
+﻿@page "/cart"
+@using Expert.WebShop.Zavrsni.Models;
+@inject HttpClient httpClient
+@inject NavigationManager navManager
+@inject ShoppingCartInMemory shoppingCartInMemory
+<PageTitle>Vaša košarica | WebShop</PageTitle>
+<h3>Vaša košarica</h3>
+
+@{double sum = 0;}
+
+@foreach(var product in shoppingCartInMemory.SelectedItems.OrderBy(x => x.ProductId))
+{
+    <RadzenCard Style="width: 100%; padding: 0;">
+        <RadzenRow Gap="0">
+            <RadzenColumn Size="12" SizeLG="3" Class="rz-p-4 product-title">
+                <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-color-secondary">@product.Product.ProductName</RadzenText>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeLG="7" Class="rz-p-4">
+                <RadzenRow Gap="0">
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="2">
+                        <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0">Jedinična cijena</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@product.Product.ProductPrice</RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="2">
+                        <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0">Popust</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@product.Product.Discount</RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="5">
+                        <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0">Količina</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@product.NumberOfItems</RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="3" Class="rz-text-align-start rz-text-align-lg-end">
+                        <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Shade="Shade.Lighter" class="price-badge" Text=@($"{product.Product.ProductPrice*product.NumberOfItems}") />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeLG="2" Class="rz-p-4">
+                <RadzenButton Text="Order now" Style="width: 100%" />
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenCard>
+}
+
+
+
+
+
+    <style>
+        .product-title {
+            min-height: 72px;
+            background-color: var(--rz-secondary-lighter);
+        }
+
+        .price-badge {
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 20px;
+            padding: 8px;
+        }
+    </style>
+
+
+    @code {
+    bool allowVirtualization;
+    private List<ShoppingCartInMemory> cart = new List<ShoppingCartInMemory>();
+}
