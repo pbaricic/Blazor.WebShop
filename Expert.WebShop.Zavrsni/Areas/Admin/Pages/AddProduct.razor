@@ -1,9 +1,18 @@
 ﻿@using Expert.WebShop.Zavrsni.Models;
 @inject HttpClient httpClient
 @inject NavigationManager navManager
-@page "/Admin/novi-prozvod"
+@page "/Admin/novi-proizvod"
 
+<PageTitle>Dodaj novi proizvod | Expert</PageTitle>
 <h3>Dodaj novi proizvod</h3>
+@if (IsLoadError)
+{
+    <h3 class="alert-danger">@Constants.LoadError</h3>
+}
+
+
+
+<div class="forma">
 @if (IsError)
 {
     <p class="alert-danger">Spremanje proizvoda nije uspjelo! Pokušajte ponovno!</p>
@@ -41,12 +50,14 @@
     <button type="submit" class="btn btn-primary">Spremi proizvod</button>
 
 </form>
-
+</div>
 
 @code {
     private List<Category> categories = new List<Category>();
     private Product products = new Product();
     bool IsError = false;
+    bool IsLoadError = false;
+
     protected override async Task OnInitializedAsync()
     {
         var result = await httpClient.GetAsync("https://expertshopapi.azurewebsites.net/api/Categories");
@@ -54,7 +65,11 @@
         {
             categories = await result.Content.ReadFromJsonAsync<List<Category>>();
         }
-
+        else
+        {
+            IsLoadError = true;
+            StateHasChanged();
+        }
     }
 
     private async Task Submit()

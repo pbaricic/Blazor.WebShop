@@ -1,0 +1,102 @@
+﻿@page "/Admin/uredi-proizvod/{Id:int}"
+@inject NavigationManager navManager
+@inject HttpClient httpClient
+@using Expert.WebShop.Zavrsni.Models
+
+<PageTitle>Uređivanje proizvoda | Expert</PageTitle>
+<h3>Uredi proizvod: @product.ProductName</h3>
+@if (IsLoadError)
+{
+    <h3 class="alert-danger">@Constants.LoadError</h3>
+}
+
+<div class="forma">
+    @if (IsError)
+    {
+        <p class="alert-danger">Uređivanje proizvoda nije uspjelo! Pokušajte ponovno!</p>
+    }
+    <form @onsubmit="()=>Uredi(product.Id)">
+        <select class="form-select" @bind="product.CategoryId" aria-label="Default select example">
+            <option selected>Odaberite kategoriju proizvoda!</option>
+            @foreach (var item in categories)
+            {
+                <option value="@item.Id">@item.CategoryName</option>
+            }
+        </select>
+        <div class="mb-3">
+            <label for="NazivProizvoda" class="form-label">Naziv proizvoda</label>
+            <input type="text" @bind-value="product.ProductName" class="form-control" id="NazivProizvoda" required>
+        </div>
+        <div class="mb-3">
+            <label for="OpisProizvoda" class="form-label">Opis proizvoda</label>
+            <input type="text" @bind-value="product.ProductDescription" class="form-control" id="OpisProizvoda" aria-describedby="OpisHelp">
+            <div id="OpisHelp" class="form-text">Nije obavezno</div>
+        </div>
+        <div class="mb-3">
+            <label for="CijenaProizvoda" class="form-label">Cijena proizvoda</label>
+            <input type="number" @bind-value="product.ProductPrice" class="form-control" id="CijenaProizvoda">
+        </div>
+        <div class="mb-3">
+            <label for="Popust" class="form-label">Popust</label>
+            <input type="number" @bind-value="product.Discount" class="form-control" id="Popust" aria-describedby="PopustHelp">
+            <div id="PopustHelp" class="form-text">Ukoliko nema popusta, ostavite vrijednost na 0</div>
+        </div>
+        <div class="mb-3">
+            <label for="UrlSlike" class="form-label">Url slike</label>
+            <input type="url" @bind-value="product.ImagePath" class="form-control" id="UrlSlike">
+        </div>
+        <button type="submit" class="btn btn-primary">Spremi proizvod</button>
+
+    </form>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    Product product = new Product();
+    List<Category> categories = new List<Category>();
+    bool IsError = false;
+    bool IsLoadError = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await httpClient.GetAsync($"{Constants.baseUrl}/Products/{Id}");
+        if (result.IsSuccessStatusCode)
+        {
+            product = await result.Content.ReadFromJsonAsync<Product>();
+        }
+        else
+        {
+            IsLoadError = true;
+            StateHasChanged();
+        }
+
+        result = await httpClient.GetAsync($"{Constants.baseUrl}/Categories");
+        if (result.IsSuccessStatusCode)
+        {
+            categories = await result.Content.ReadFromJsonAsync<List<Category>>();
+        }
+        else
+        {
+            IsLoadError = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Uredi(int id)
+    {
+        var result = await httpClient.PutAsJsonAsync($"{Constants.baseUrl}/Products/{id}",product);
+        if (result.IsSuccessStatusCode)
+        {
+            navManager.NavigateTo("/Admin/lista-proizvoda");
+        }
+        else
+        {
+            IsError = true;
+            StateHasChanged();
+        }
+            
+    }
+}

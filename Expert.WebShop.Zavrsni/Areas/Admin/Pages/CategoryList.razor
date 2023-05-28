@@ -1,0 +1,68 @@
+﻿@page "/Admin/lista-kategorija"
+@inject HttpClient httpClient
+@inject NavigationManager navManager
+@using Expert.WebShop.Zavrsni.Models
+
+<PageTitle>Lista kategorija | Expert</PageTitle>
+<h3>Lista kategorija</h3>
+@if (IsLoadError)
+{
+    <h3 class="alert-danger">@Constants.LoadError</h3>
+}
+
+<div class="container text-center">
+    <div class="row">
+        @foreach (var item in categories)
+        {
+            <div class="col">
+                <div class="card" style="width: 18rem;">
+                    <img class="card-img-top" src="@item.ImagePath" alt="card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.CategoryName</h5>
+                        <p class="card-text">@item.CategoryDescription</p>
+                        <p class="card-text">Is hidden: @item.IsHidden</p>
+                    </div>
+                    <div class="mojiButtoni">
+                        <button type="button" @onclick="()=>EditCategory(item.Id)" class="btn btn-primary">Uredi</button>
+                        <button type="button" @*@onclick="()=>DeleteCategory(item.Id)" *@ class="btn btn-danger">Obriši kategoriju</button>
+                    </div>
+                </div>
+            </div>
+
+        }
+    </div>
+</div>
+
+
+
+@code {
+    List<Category> categories = new List<Category>();
+    bool IsLoadError = false;
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await httpClient.GetAsync($"{Constants.baseUrl}/Categories");
+        if (result.IsSuccessStatusCode)
+        {
+            categories = await result.Content.ReadFromJsonAsync<List<Category>>();
+        }
+        else
+        {
+            IsLoadError = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task EditCategory(int id)
+    {
+        navManager.NavigateTo($"Admin/uredi-kategoriju/{id}");
+    }
+
+    private async Task DeleteCategory(int id)
+    {
+        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Categories/{id}");
+        if (result.IsSuccessStatusCode)
+        {
+            navManager.NavigateTo("/Admin/lista-kategorija");
+        }
+    }
+}

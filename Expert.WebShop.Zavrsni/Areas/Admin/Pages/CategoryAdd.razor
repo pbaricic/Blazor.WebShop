@@ -1,0 +1,61 @@
+﻿@page "/Admin/nova-kategorija"
+@inject HttpClient httpClient
+@inject NavigationManager navManager
+@using Expert.WebShop.Zavrsni.Models
+
+<PageTitle>Dodaj novu kategoriju | Expert</PageTitle>
+<h3>Dodaj novu kategoriju</h3>
+@if (IsLoadError)
+{
+    <h3 class="alert-danger">@Constants.LoadError</h3>
+}
+
+<div class="forma">
+    @if (IsError)
+    {
+        <p class="alert-danger">Spremanje kategorije nije uspjelo! Pokušajte ponovno!</p>
+    }
+    <form @onsubmit="Submit">
+        <div class="mb-3">
+            <label for="NazivProizvoda" class="form-label">Naziv kategorije</label>
+            <input type="text" @bind-value="categories.CategoryName" class="form-control" id="NazivProizvoda" required>
+        </div>
+        <div class="mb-3">
+            <label for="OpisProizvoda" class="form-label">Opis kategorije</label>
+            <input type="text" @bind-value="categories.CategoryDescription" class="form-control" id="OpisProizvoda" aria-describedby="OpisHelp">
+            <div id="OpisHelp" class="form-text">Nije obavezno</div>
+        </div>
+        <div class="mb-3">
+            <label for="imagePath" class="form-label">Image path</label>
+            <input type="url" @bind-value="categories.ImagePath" class="form-control" id="imagePath">
+        </div>
+        <div class="mb-3">
+            <label for="hidden" class="form-label">Is hidden?</label>
+            <input type="checkbox" @bind-value="categories.IsHidden" class="form-control" id="hidden">
+           
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Spremi kategoriju</button>
+
+    </form>
+</div>
+
+@code {
+    bool IsLoadError = false;
+    bool IsError = false;
+    Category categories = new Category();
+
+    private async Task Submit()
+    {
+        var result = await httpClient.PostAsJsonAsync($"{Constants.baseUrl}/Categories", categories);
+        if (result.IsSuccessStatusCode)
+        {
+            navManager.NavigateTo("/Admin/lista-kategorija");
+        }
+        else
+        {
+            IsError = true;
+            StateHasChanged();
+        }
+    }
+}

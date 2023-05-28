@@ -1,0 +1,78 @@
+﻿@page "/Admin/uredi-kategoriju/{id:int}"
+@inject NavigationManager navManager
+@inject HttpClient httpClient
+@using Expert.WebShop.Zavrsni.Models
+
+<PageTitle>Uredi kategoriju | Expert</PageTitle>
+<h3>Uredi kategoriju: @categories.CategoryName</h3>
+@if (IsLoadError)
+{
+    <h3 class="alert-danger">@Constants.LoadError</h3>
+}
+
+<div class="forma">
+    @if (IsError)
+    {
+        <p class="alert-danger">Uređivanje kategorije nije uspjelo! Pokušajte ponovno!</p>
+    }
+    <form @onsubmit="()=>Uredi(categories.Id)">
+        
+        <div class="mb-3">
+            <label for="NazivKategorije" class="form-label">Naziv kategorije</label>
+            <input type="text" @bind-value="categories.CategoryName" class="form-control" id="NazivKategorije" required>
+        </div>
+        <div class="mb-3">
+            <label for="OpisKategorije" class="form-label">Opis kategorije</label>
+            <input type="text" @bind-value="categories.CategoryDescription" class="form-control" id="OpisKategorije" aria-describedby="OpisHelp">
+            <div id="OpisHelp" class="form-text">Nije obavezno</div>
+        </div>
+        <div class="mb-3">
+            <label for="imgPath" class="form-label">Image path</label>
+            <input type="url" @bind-value="categories.ImagePath" class="form-control" id="imgPath">
+        </div>
+        <div class="mb-3">
+            <label for="hidden" class="form-label">Is hidden?</label>
+            <input type="checkbox" @bind-value="categories.IsHidden" class="form-control" id="hidden">
+            
+        </div>
+        <button type="submit" class="btn btn-primary">Spremi kategoriju</button>
+    </form>
+</div>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+
+    Category categories = new Category();
+    bool IsError = false;
+    bool IsLoadError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await httpClient.GetAsync($"{Constants.baseUrl}/Categories/{id}");
+        if (result.IsSuccessStatusCode)
+        {
+            categories = await result.Content.ReadFromJsonAsync<Category>();
+        }
+        else
+        {
+            IsLoadError = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Uredi(int id)
+    {
+        var result = await httpClient.PutAsJsonAsync($"{Constants.baseUrl}/Categories/{id}", categories);
+        if (result.IsSuccessStatusCode)
+        {
+            navManager.NavigateTo("/Admin/lista-kategorija");
+        }
+        else
+        {
+            IsError = true;
+            StateHasChanged();
+        }
+    }
+}

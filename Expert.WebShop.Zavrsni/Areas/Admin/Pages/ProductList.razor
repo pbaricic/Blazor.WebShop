@@ -1,0 +1,73 @@
+﻿@page "/Admin/lista-proizvoda"
+@inject HttpClient httpClient
+@inject NavigationManager navManager
+@using Expert.WebShop.Zavrsni.Models
+
+<PageTitle>Lista proizvoda | Expert</PageTitle>
+<h3>Lista svih proizvoda</h3>
+@if (IsLoadError)
+{
+    <h3 class="alert-danger">@Constants.LoadError</h3>
+}
+
+<div class="container text-center">
+    <div class="row">
+        @foreach (var item in products)
+        {
+            <div class="col">
+                <div class="card" style="width: 18rem;">
+                    <img class="card-img-top" src="@item.ImagePath" alt="card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.ProductName</h5>
+                        <p class="card-text">@item.ProductDescription</p>
+                    </div>
+                   <div class="mojiButtoni">
+                    <button type="button" @onclick="()=>EditProduct(item.Id)" class="btn btn-primary">Uredi</button>
+                    <button type="button" @*@onclick="()=>DeleteProduct(item.Id)"*@ class="btn btn-danger">Obriši proizvod</button>
+                    </div>
+                </div>
+            </div>
+           
+        }
+    </div>
+</div>
+
+@code {
+    List<Product> products = new List<Product>();
+    bool IsLoadError = false;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await httpClient.GetAsync($"{Constants.baseUrl}/Products");
+        if (result.IsSuccessStatusCode)
+        {
+            products = await result.Content.ReadFromJsonAsync<List<Product>>();
+        }
+        else
+        {
+            IsLoadError = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task EditProduct(int id)
+    {
+        navManager.NavigateTo($"/Admin/uredi-proizvod/{id}");
+    }
+
+
+    /// Potrebno dodati Js ili nešto da prije brisanja kategorije zapiči neku obavijesti i da se potvrdi. 
+
+
+    private async Task DeleteProduct(int id)
+    {
+        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Products/{id}");
+        if (result.IsSuccessStatusCode)
+        {
+            StateHasChanged();
+            navManager.NavigateTo("/Admin/lista-proizvoda");
+        }
+    }
+
+}
