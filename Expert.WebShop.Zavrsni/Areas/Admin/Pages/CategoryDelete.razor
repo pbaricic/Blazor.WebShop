@@ -1,0 +1,64 @@
+﻿@page "/Admin/brisanje-kategorije/{id:int}"
+@inject HttpClient httpClient
+@inject NavigationManager navManager
+@inject NotificationService NotificationService
+@using Expert.WebShop.Zavrsni.Models
+@if (IsLoadError)
+{
+    <h3 class="alert-danger">@Constants.LoadError</h3>
+}
+<PageTitle>Brisanje kategorije | Exspert</PageTitle>
+<h3 style="align-content:center">Brisanje kategorije: @categories.CategoryName</h3>
+
+<div class="alert-danger">
+    <p>Jeste li sigurni da želi obrisati kategoriju @categories.CategoryName ?</p>
+    <button type="button" @onclick="()=>{DeleteCategory(id); ShowNotification(categories.CategoryName); }" class="btn btn-danger">Obriši kategoriju</button>
+</div>
+@if (IsError)
+{
+    <p class="alert-danger">Brisanje kategorije nije uspijelo! Pokušajte ponovno!!</p>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    Category categories = new Category();
+    bool IsError = false;
+    bool IsLoadError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await httpClient.GetAsync($"{Constants.baseUrl}/Categories/{id}");
+        if (result.IsSuccessStatusCode)
+        {
+            categories = await result.Content.ReadFromJsonAsync<Category>();
+        }
+        else
+        {
+            IsLoadError = true;
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task DeleteCategory(int id)
+    {
+        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Categories/{id}");
+        if (result.IsSuccessStatusCode)
+        {
+            navManager.NavigateTo("/Admin/lista-kategorija");  
+        }
+        else
+        {
+            IsError=true;
+            StateHasChanged();
+        }
+    }
+
+    void ShowNotification(string categoryName)
+    {
+        var message = new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Kategorija obrisana!", Detail = $"Uspješno ste obrisali kategoriju {categoryName}!", Duration = 5000 };
+        NotificationService.Notify(message);
+    }
+}
