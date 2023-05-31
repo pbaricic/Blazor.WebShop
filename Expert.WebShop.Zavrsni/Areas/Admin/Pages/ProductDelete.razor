@@ -1,0 +1,72 @@
+﻿@page "/Admin/brisanje-proizvoda/{id:int}"
+@inject HttpClient httpClient
+@inject NavigationManager navManager
+@inject NotificationService NotificationService
+<PageTitle>Brisanje proizvoda | Ekspert</PageTitle>
+
+@if (IsLoadError)
+{
+    <h3 class="alert-danger">@Constants.LoadError</h3>
+}
+<h3>Brisanje proizvoda: @proiz.ProductName</h3>
+
+<div class="alert-danger">
+    <p>Jeste li sigurni da želi obrisati proizvod <b>@proiz.ProductName</b> ?</p>
+    <button type="button" @onclick="()=>{DeleteProduct(id); ShowNotification(proiz.ProductName); }" class="btn btn-danger">Obriši kategoriju</button>
+</div>
+@if (IsError)
+{
+    <p class="alert-danger">Brisanje kategorije nije uspijelo! Pokušajte ponovno!!</p>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    Product proiz = new Product();
+    bool IsLoadError=false;
+    bool IsError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await httpClient.GetAsync($"{Constants.baseUrl}/Products/{id}");
+        if (result.IsSuccessStatusCode)
+        {
+            proiz = await result.Content.ReadFromJsonAsync<Product>();
+        }
+        else
+        {
+            IsLoadError = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteProduct(int id)
+    {
+        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Products/{id}");
+        if (result.IsSuccessStatusCode)
+        {
+            navManager.NavigateTo($"/Admin/lista-proizvoda");
+        }
+        else
+        {
+            IsError = true;
+            StateHasChanged();
+        }
+    }
+
+    void ShowNotification(string productName)
+    {
+        var message = new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Proizvod obrisan!", Detail = $"Uspješno ste obrisali proizvod {productName}", Duration = 5000 };
+        if (!IsError)
+        {
+            NotificationService.Notify(message);
+        }
+        else
+        {
+            message = new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Proizvod nije obrisan!", Detail = $"Došlo je do greške prilikom brisanja proizvoda {productName}", Duration = 5000 };
+            NotificationService.Notify(message);
+        }
+
+    }
+}

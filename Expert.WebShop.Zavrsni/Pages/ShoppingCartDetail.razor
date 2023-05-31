@@ -4,7 +4,7 @@
 @inject NavigationManager navManager
 @inject ShoppingCartInMemory shoppingCartInMemory
 <PageTitle>Vaša košarica | WebShop</PageTitle>
-<h3>Vaša košarica</h3>
+<h3 style="text-align:center">Vaša košarica</h3>
 
 @{double sum = 0;}
 
@@ -12,30 +12,41 @@
 {
     <RadzenCard Style="width: 100%; padding: 0;">
         <RadzenRow Gap="0">
-            <RadzenColumn Size="12" SizeLG="3" Class="rz-p-4 product-title">
-                <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-color-secondary">@product.Product.ProductName</RadzenText>
+            <RadzenColumn Size="12" SizeLG="3" Class="rz-p-4 product-title" Style="background-color:lightblue">
+                <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" class="rz-color-dark">@product.Product.ProductName</RadzenText>
             </RadzenColumn>
             <RadzenColumn Size="12" SizeLG="7" Class="rz-p-4">
                 <RadzenRow Gap="0">
                     <RadzenColumn Size="12" SizeMD="6" SizeLG="2">
                         <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0">Jedinična cijena</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body2">@product.Product.ProductPrice</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@product.Product.ProductPrice €</RadzenText>
                     </RadzenColumn>
-                    <RadzenColumn Size="12" SizeMD="6" SizeLG="2">
-                        <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0">Popust</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body2">@product.Product.Discount</RadzenText>
-                    </RadzenColumn>
+                    @if (product.Product.Discount > 0)
+                    {
+                        <RadzenColumn Size="12" SizeMD="6" SizeLG="2">
+                            <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0">Popust</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@product.Product.Discount %</RadzenText>
+                        </RadzenColumn>
+                    }
+                    else
+                    {
+                        <RadzenColumn Size="12" SizeMD="6" SizeLG="2">
+                            <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0"></RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2"></RadzenText>
+                        </RadzenColumn>
+                    }
+
                     <RadzenColumn Size="12" SizeMD="6" SizeLG="5">
                         <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0">Količina</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@product.NumberOfItems</RadzenText>
                     </RadzenColumn>
                     <RadzenColumn Size="12" SizeMD="6" SizeLG="3" Class="rz-text-align-start rz-text-align-lg-end">
-                        <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Shade="Shade.Lighter" class="price-badge" Text=@($"{product.Product.ProductPrice*product.NumberOfItems}") />
+                        <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{product.Product.ProductPrice*product.NumberOfItems}€") />
                     </RadzenColumn>
                 </RadzenRow>
             </RadzenColumn>
             <RadzenColumn Size="12" SizeLG="2" Class="rz-p-4">
-                <RadzenButton Text="Order now" Style="width: 100%" />
+                <RadzenButton Click ="()=>DeleteFromCard(product.ProductId)" Text="Ukloni iz košarice" ButtonStyle="ButtonStyle.Danger" Style="width: 100%" />
             </RadzenColumn>
         </RadzenRow>
     </RadzenCard>
@@ -60,7 +71,18 @@
     </style>
 
 
-    @code {
+@code {
     bool allowVirtualization;
     private List<ShoppingCartInMemory> cart = new List<ShoppingCartInMemory>();
+
+    private async Task DeleteFromCard(int targetId)
+    {
+        foreach(var item in shoppingCartInMemory.SelectedItems.OrderBy(x => x.ProductId))
+        {
+            if (targetId == item.ProductId)
+            {
+                shoppingCartInMemory.SelectedItems.Remove(item);
+            }
+        }
+    }
 }

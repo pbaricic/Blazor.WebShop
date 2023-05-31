@@ -23,7 +23,7 @@
                     </div>
                    <div class="mojiButtoni">
                     <button type="button" @onclick="()=>EditProduct(item.Id)" class="btn btn-primary">Uredi</button>
-                    <button type="button" @*@onclick="()=>DeleteProduct(item.Id)"*@ class="btn btn-danger">Obriši proizvod</button>
+                    <button type="button" @onclick="()=>DeleteProduct(item.Id)" class="btn btn-danger">Obriši proizvod</button>
                     </div>
                 </div>
             </div>
@@ -62,12 +62,7 @@
 
     private async Task DeleteProduct(int id)
     {
-        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Products/{id}");
-        if (result.IsSuccessStatusCode)
-        {
-            StateHasChanged();
-            navManager.NavigateTo("/Admin/lista-proizvoda");
-        }
+        navManager.NavigateTo($"/Admin/brisanje-proizvoda/{id}");
     }
 
 }

@@ -2,6 +2,9 @@
 @using Expert.WebShop.Zavrsni.Models;
 @inject HttpClient httpClient
 @inject NavigationManager navManager
+@inject NotificationService NotificationService
+@inject ShoppingCartInMemory shoppingCart
+
 <PageTitle>@category.CategoryName | Expert</PageTitle>
 <h3>@category.CategoryName</h3>
 
@@ -12,8 +15,10 @@
     <img class="card-img-top" src="@item.ImagePath" alt="Card image cap">
     <div class="card-body">
         <h5 class="card-title">@item.ProductName</h5>
-        <p class="card-text">@item.ProductDescription</p>
-        <a href="#" class="btn btn-primary">Details</a>
+        <p class="card-text">Opis: @item.ProductDescription</p>
+        <p class="card-text">Cijena: @item.ProductPrice €</p>
+        <RadzenButton Click="()=>Detalji(item.Id, item.ProductName)" Text="Detalji"></RadzenButton>
+        <RadzenButton Click="(()=> {shoppingCart.AddToShoppingCart(item.Id); ShowNotification(item.ProductName); })" Text="Dodaj u košaricu"></RadzenButton>
     </div>
 </div>
 }
@@ -62,5 +67,16 @@
         products = await GetProducts(id);
 
         StateHasChanged();
+    }
+
+    void ShowNotification(string productName)
+    {
+        var message = new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Dodano u košaricu", Detail = $"Uspješno ste dodali proizvod {productName} u košaricu!", Duration = 5000 };
+        NotificationService.Notify(message);
+    }
+
+    private async Task Detalji(int id, string productName)
+    {
+        navManager.NavigateTo($"/detalji/{id}/{productName}");
     }
 }

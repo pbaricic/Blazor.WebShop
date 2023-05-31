@@ -41,6 +41,7 @@
         }
     }
 
+   
 
     private async Task DeleteCategory(int id)
     {
@@ -59,6 +60,16 @@
     void ShowNotification(string categoryName)
     {
         var message = new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Kategorija obrisana!", Detail = $"Uspješno ste obrisali kategoriju {categoryName}!", Duration = 5000 };
-        NotificationService.Notify(message);
+        if (!IsError)
+        {
+
+            NotificationService.Notify(message);
+        }
+        else
+        {
+            message = new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Kategorija nije obrisana!", Detail = $"Došlo je do greške prilikom brisanja kategorije {categoryName}", Duration = 5000 };
+            NotificationService.Notify(message);
+        }
     }
+    
 }
