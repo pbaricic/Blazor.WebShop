@@ -40,9 +40,22 @@
                         <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0">Količina</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@product.NumberOfItems</RadzenText>
                     </RadzenColumn>
+                    @if (product.Product.Discount == 0)
+                    {
+                        <RadzenColumn Size="12" SizeMD="6" SizeLG="3" Class="rz-text-align-start rz-text-align-lg-end">
+                            <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{product.Product.ProductPrice*product.NumberOfItems}€") />
+                        </RadzenColumn>
+                    }
+                    else
+                    {
+                        double discountedPrice = 0;
+                        
+                    
                     <RadzenColumn Size="12" SizeMD="6" SizeLG="3" Class="rz-text-align-start rz-text-align-lg-end">
-                        <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{product.Product.ProductPrice*product.NumberOfItems}€") />
-                    </RadzenColumn>
+                            <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{product.Product.ProductPrice*product.NumberOfItems}€") />
+                        </RadzenColumn>
+                    }
+
                 </RadzenRow>
             </RadzenColumn>
             <RadzenColumn Size="12" SizeLG="2" Class="rz-p-4">

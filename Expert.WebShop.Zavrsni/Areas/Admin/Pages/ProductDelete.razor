@@ -43,7 +43,8 @@
 
     private async Task DeleteProduct(int id)
     {
-        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Products/{id}");
+        if(IsLoadError == false){
+        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Productsx/{id}");
         if (result.IsSuccessStatusCode)
         {
             navManager.NavigateTo($"/Admin/lista-proizvoda");
@@ -53,6 +54,7 @@
             IsError = true;
             StateHasChanged();
         }
+    }
     }
 
     void ShowNotification(string productName)
