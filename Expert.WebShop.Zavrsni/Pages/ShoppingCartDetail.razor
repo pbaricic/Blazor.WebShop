@@ -3,10 +3,15 @@
 @inject HttpClient httpClient
 @inject NavigationManager navManager
 @inject ShoppingCartInMemory shoppingCartInMemory
+
+@{
+    double sum = 0;
+}
+
 <PageTitle>Vaša košarica | WebShop</PageTitle>
 <h3 style="text-align:center">Vaša košarica</h3>
 
-@{double sum = 0;}
+
 
 @foreach(var product in shoppingCartInMemory.SelectedItems.OrderBy(x => x.ProductId))
 {
@@ -40,19 +45,25 @@
                         <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0">Količina</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@product.NumberOfItems</RadzenText>
                     </RadzenColumn>
-                    @if (product.Product.Discount == 0)
+                    @if (product.Product.Discount<1)
                     {
+                        var total = Convert.ToDouble(product.Product.ProductPrice) * Convert.ToDouble(product.NumberOfItems);
+                        sum = sum + total;
+
                         <RadzenColumn Size="12" SizeMD="6" SizeLG="3" Class="rz-text-align-start rz-text-align-lg-end">
-                            <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{product.Product.ProductPrice*product.NumberOfItems}€") />
+                            <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{total}€") />
                         </RadzenColumn>
+
                     }
                     else
                     {
-                        double discountedPrice = 0;
-                        
-                    
-                    <RadzenColumn Size="12" SizeMD="6" SizeLG="3" Class="rz-text-align-start rz-text-align-lg-end">
-                            <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{product.Product.ProductPrice*product.NumberOfItems}€") />
+
+                        var discountedPrice = (Convert.ToDouble(product.Product.ProductPrice) * (Convert.ToDouble(product.Product.Discount)/100));
+                        var result = Math.Round(Convert.ToDouble(product.Product.ProductPrice) - discountedPrice,2);
+                        result = result * product.NumberOfItems;
+                        sum = sum + result;
+                        <RadzenColumn Size="12" SizeMD="6" SizeLG="3" Class="rz-text-align-start rz-text-align-lg-end">
+                            <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{result}€") />
                         </RadzenColumn>
                     }
 
@@ -64,7 +75,19 @@
         </RadzenRow>
     </RadzenCard>
 }
+<br />
+<div class="cartTotal">
+    <div class="cartTotalPrice">
+<RadzenColumn Size="12" SizeMD="6" SizeLG="3" Class="rz-text-align-start rz-text-align-lg-end">
+    Ukupno za platiti: 
+    <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{sum}€") />
+</RadzenColumn>
+</div>
+<div class="cartTotalButton">
+        <RadzenButton Click="Checkout" Text="Nastavi na plaćanje" ButtonStyle="ButtonStyle.Info" Style="width: 100%" />
+</div>
 
+</div>
 
 
 
@@ -88,6 +111,7 @@
     bool allowVirtualization;
     private List<ShoppingCartInMemory> cart = new List<ShoppingCartInMemory>();
 
+
     private async Task DeleteFromCard(int targetId)
     {
         foreach(var item in shoppingCartInMemory.SelectedItems.OrderBy(x => x.ProductId))
@@ -97,5 +121,10 @@
                 shoppingCartInMemory.SelectedItems.Remove(item);
             }
         }
+    }
+
+    private async Task Checkout()
+    {
+        navManager.NavigateTo("/checkout-info");
     }
 }

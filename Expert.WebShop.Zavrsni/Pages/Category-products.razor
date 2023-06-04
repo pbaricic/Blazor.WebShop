@@ -9,20 +9,37 @@
 <h3>@category.CategoryName</h3>
 
 
-<div>
-@foreach(var item in products){
-<div class="card" style="width: 18rem;">
-    <img class="card-img-top" src="@item.ImagePath" alt="Card image cap">
-    <div class="card-body">
-        <h5 class="card-title">@item.ProductName</h5>
-        <p class="card-text">Opis: @item.ProductDescription</p>
-        <p class="card-text">Cijena: @item.ProductPrice €</p>
-        <RadzenButton Click="()=>Detalji(item.Id, item.ProductName)" Text="Detalji"></RadzenButton>
-        <RadzenButton Click="(()=> {shoppingCart.AddToShoppingCart(item.Id); ShowNotification(item.ProductName); })" Text="Dodaj u košaricu"></RadzenButton>
+<div class="card-group">
+    <div class="container text-center">
+        <div class="row">
+            @foreach (var item in products)
+            {
+                <div class="col">
+                    <div class="card" style="width: 18rem;">
+                        <img class="card-img-top" src="@item.ImagePath" alt="card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">@item.ProductName</h5>
+                            <p class="card-text">@item.ProductDescription</p>
+                            @if(item.Discount<1){
+                                <p class="card-text">Cijena: @item.ProductPrice€</p>
+                            }
+                            else
+                            {
+                                var discountedPrice = (Convert.ToDouble(item.ProductPrice) * (Convert.ToDouble(item.Discount) / 100));
+                                var result = Math.Round(Convert.ToDouble(item.ProductPrice) - discountedPrice, 2);
+                                <p class="card-text"><b><span style="color:red;">Akcijska cijena: @result€</span></b></p>
+                                }
+                            <RadzenButton Click="()=>Detalji(item.Id, item.ProductName)" Text="Detalji"></RadzenButton>
+                            <RadzenButton Click="(()=> {shoppingCart.AddToShoppingCart(item.Id); ShowNotification(item.ProductName); })" Text="Dodaj u košaricu"></RadzenButton>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 </div>
-}
-</div>
+
+
 @code {
     [Parameter]
     public int id { get; set; }

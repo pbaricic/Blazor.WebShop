@@ -1,17 +1,73 @@
-﻿@inject HttpClient httpClient
+﻿@page "/Admin/administration-dash"
+@using Expert.WebShop.Zavrsni.Models
 @inject NavigationManager navManager
-@page "/Admin/administration-dash"
-
-<h3>Administracija proizvoda i kategorija</h3>
-
-<a href="/Admin/lista-kategorija">Lista kategorija</a>
-<a href="/Admin/nova-kategorija">Dodaj novu kategoriju</a>
-<a href="/Admin/lista-proizvoda">Lista proizvoda</a>
-<a href="/Admin/novi-proizvod">Dodaj novi proizvod</a>
+@inject HttpClient httpClient
 
 
-@code {
-    //// <summary>
-    /// Razmotriti da se ubaci Tabs za administraciju proizvoda sa linka: https://blazor.radzen.com/tabs
-    /// </summary>
-}
+<PageTitle>Administracija | Expert</PageTitle>
+
+<RadzenTabs TabPosition="@tabPosition" RenderMode="TabRenderMode.Client">
+    <Tabs>
+        <RadzenTabsItem Text="Proizvodi">
+                        @foreach(var item in products){
+                <RadzenCard Style="width: 250px;" Class="rz-border-radius-3">
+                    <RadzenRow Gap="0.5rem">
+                                <RadzenColumn Size="4" Class="rz-text-align-right">
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Shade="Shade.Lighter" Text=@Convert.ToString(item.ProductPrice) IsPill="true" />
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <hr style="border: none; background-color: rgba(0,0,0,.08); height: 1px; margin: 1rem 0;" />
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
+                                <RadzenImage Path="@item.ImagePath" Class="rz-border-radius-10" Style="width: 80px; height: 80px;" />
+                                <RadzenStack Gap="0">
+                                    <RadzenText TextStyle="TextStyle.Subtitle1" Class="rz-mb-0"><strong>@(item.ProductName)</strong></RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2" Class="rz-mb-0">@item.ProductDescription</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Caption" Class="rz-mb-0">Cijena: @item.ProductPrice, Popust: @item.Discount</RadzenText>
+                            </RadzenStack>
+                        </RadzenStack>
+                    </RadzenCard>
+                        }
+                        
+            </RadzenTabsItem>
+            </Tabs>
+            </RadzenTabs>
+
+   
+
+    @code {
+
+    List<Product> products = new List<Product>();
+    List<Category> categories = new List<Category>();
+
+    TabPosition tabPosition = TabPosition.Top;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        categories = await GetCategories();
+        products = await GetProduct();
+       
+    }
+
+    private async Task<List<Category>> GetCategories()
+    {
+        var result = await httpClient.GetAsync($"{Constants.baseUrl}/Categories");
+        if (result.IsSuccessStatusCode)
+        {
+            categories = await result.Content.ReadFromJsonAsync<List<Category>>();
+        }
+        return categories;
+    }
+    private async Task<List<Product>> GetProduct()
+    {
+        var result = await httpClient.GetAsync($"{Constants.baseUrl}/Products");
+        if (result.IsSuccessStatusCode)
+        {
+            products = await result.Content.ReadFromJsonAsync<List<Product>>();
+        }
+        return products;
+    }
+
+
+    }

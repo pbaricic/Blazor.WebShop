@@ -1,0 +1,97 @@
+﻿@page "/checkout-info"
+@inject HttpClient httpClient
+@inject NavigationManager navManager
+@using Expert.WebShop.Zavrsni.Models
+@inject ShoppingCartInMemory shoppingCartInMemory
+<PageTitle>Checkout | Expert</PageTitle>
+@if (IsLoadError)
+{
+    <h3 class="alert-danger">@Constants.LoadError</h3>
+}
+else
+{
+    <h3 style="text-align:center">BuyerInfo</h3>
+}
+
+
+<div class="forma">
+    @if (IsError)
+    {
+        <p class="alert-danger">Slanje narudžbe nije uspjelo! Pokušajte ponovno!</p>
+    }
+    <form @onsubmit="Submit">
+        <div class="mb-3">
+            <label for="ImeKupca" class="form-label">Ime i prezime</label>
+            <input type="text" @bind-value="imePrezime" class="form-control" id="ImeKupca" required>
+        </div>
+        <div class="mb-3">
+            <label for="MailKupca" class="form-label">E-mail</label>
+            <input type="email" @bind-value="email" class="form-control" id="MailKupca">
+        </div>
+        <select class="form-select" aria-label="Default select example">
+            <option selected>Odaberite način plaćanja!</option>
+                <option>Gotovina prilikom preuzimanja</option>
+                <option>Kartica</option>
+                <option>Virman</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Plati</button>
+    </form>
+</div>
+
+
+
+@code {
+    bool IsLoadError = false;
+    bool IsError = false;
+    public string email = "";
+    public string imePrezime = "";
+
+    public async Task Submit()
+    {
+
+        Guid orderId = Guid.NewGuid();
+        foreach(var item in shoppingCartInMemory.SelectedItems)
+        {
+            BuyItem buyItem = new BuyItem();
+            buyItem.ProductId = item.ProductId;
+            buyItem.OrderId = orderId;
+            buyItem.NumberOfItems = item.NumberOfItems;
+            buyItem.PricePerProduct = item.Product.ProductPrice;
+            buyItem.ProductDiscount = item.Product.Discount;
+            if (buyItem.ProductDiscount > 0)
+            {
+                var discount = ((Convert.ToDouble(item.Product.Discount) / 100)
+                        * Convert.ToDouble(item.Product.ProductPrice));
+                var result = Math
+                .Round(Convert.ToDouble(item.Product.ProductPrice) - discount, 2);
+                result = result * item.NumberOfItems;
+                buyItem.TotalAmmount = (decimal)result;
+            }
+            else
+            {
+                buyItem.TotalAmmount = (decimal)item.Product.ProductPrice * (decimal)item.NumberOfItems;
+            }
+
+            buyItem.IsPayed = false;
+            buyItem.IsDelivered = false;
+
+            
+        }
+
+        var response = await httpClient.PostAsJsonAsync($"{Constants.baseUrl}/ShoppingCards", Submit);
+        if (response.IsSuccessStatusCode)
+        {
+            
+            navManager.NavigateTo("/");
+        }
+        else
+        {
+            IsError = true;
+            StateHasChanged();
+        }
+
+       
+    }
+
+}
+

@@ -30,7 +30,7 @@
 
 @code{
     private List<Category> cats = new List<Category>();
-
+    bool IsLoadError = false;
     protected override async Task OnInitializedAsync()
     {
         cats = await GetProducts();
