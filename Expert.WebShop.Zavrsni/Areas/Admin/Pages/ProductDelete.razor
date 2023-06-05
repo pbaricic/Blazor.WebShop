@@ -16,7 +16,7 @@
 </div>
 @if (IsError)
 {
-    <p class="alert-danger">Brisanje kategorije nije uspijelo! Pokušajte ponovno!!</p>
+    <p class="alert-danger">Brisanje proizvoda nije uspijelo! Pokušajte ponovno!!</p>
 }
 
 @code {
@@ -44,10 +44,10 @@
     private async Task DeleteProduct(int id)
     {
         if(IsLoadError == false){
-        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Productsx/{id}");
+        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Products/{id}");
         if (result.IsSuccessStatusCode)
         {
-            navManager.NavigateTo($"/Admin/lista-proizvoda");
+                navManager.NavigateTo($"/Admin/administration-dash");
         }
         else
         {

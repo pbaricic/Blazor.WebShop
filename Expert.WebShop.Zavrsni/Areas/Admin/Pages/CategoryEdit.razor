@@ -2,6 +2,7 @@
 @inject NavigationManager navManager
 @inject HttpClient httpClient
 @using Expert.WebShop.Zavrsni.Models
+@inject NotificationService NotificationService
 
 <PageTitle>Uredi kategoriju | Expert</PageTitle>
 <h3>Uredi kategoriju: @categories.CategoryName</h3>
@@ -15,7 +16,7 @@
     {
         <p class="alert-danger">Uređivanje kategorije nije uspjelo! Pokušajte ponovno!</p>
     }
-    <form @onsubmit="()=>Uredi(categories.Id)">
+    <form @onsubmit="()=>{Uredi(categories.Id); ShowNotification(categories.CategoryName);}">
         
         <div class="mb-3">
             <label for="NazivKategorije" class="form-label">Naziv kategorije</label>
@@ -67,7 +68,7 @@
         var result = await httpClient.PutAsJsonAsync($"{Constants.baseUrl}/Categories/{id}", categories);
         if (result.IsSuccessStatusCode)
         {
-            navManager.NavigateTo("/Admin/lista-kategorija");
+            navManager.NavigateTo("/Admin/administration-dash");
         }
         else
         {
@@ -75,4 +76,21 @@
             StateHasChanged();
         }
     }
+
+    void ShowNotification(string productName)
+    {
+        var message = new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Kategorija uređena!", Detail = $"Uspješno ste uredili kategoriju {productName}", Duration = 5000 };
+        if (!IsError)
+        {
+            NotificationService.Notify(message);
+        }
+        else
+        {
+            message = new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Proizvod nije uređen!", Detail = $"Došlo je do greške prilikom uređivanja kategorije {productName}", Duration = 5000 };
+            NotificationService.Notify(message);
+        }
+
+    }
+
+
 }

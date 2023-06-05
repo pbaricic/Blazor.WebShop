@@ -2,6 +2,7 @@
 @inject HttpClient httpClient
 @inject NavigationManager navManager
 @using Expert.WebShop.Zavrsni.Models
+@inject NotificationService NotificationService
 
 <PageTitle>Dodaj novu kategoriju | Expert</PageTitle>
 <h3>Dodaj novu kategoriju</h3>
@@ -35,7 +36,7 @@
            
         </div>
         
-        <button type="submit" class="btn btn-primary">Spremi kategoriju</button>
+        <button type="submit" @onclick="()=>ShowNotification(categories.CategoryName)" class="btn btn-primary">Spremi kategoriju</button>
 
     </form>
 </div>
@@ -50,12 +51,27 @@
         var result = await httpClient.PostAsJsonAsync($"{Constants.baseUrl}/Categories", categories);
         if (result.IsSuccessStatusCode)
         {
-            navManager.NavigateTo("/Admin/lista-kategorija");
+            navManager.NavigateTo("/Admin/administration-dash");
         }
         else
         {
             IsError = true;
             StateHasChanged();
         }
+    }
+
+    void ShowNotification(string productName)
+    {
+        var message = new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Kategorija dodana!", Detail = $"Uspješno ste dodali kategoriju {productName}", Duration = 5000 };
+        if (!IsError)
+        {
+            NotificationService.Notify(message);
+        }
+        else
+        {
+            message = new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "kategorija nije dodana!", Detail = $"Došlo je do greške prilikom dodavanja kategorije {productName}", Duration = 5000 };
+            NotificationService.Notify(message);
+        }
+
     }
 }

@@ -2,6 +2,7 @@
 @inject HttpClient httpClient
 @inject NavigationManager navManager
 @page "/Admin/novi-proizvod"
+@inject NotificationService NotificationService
 
 <PageTitle>Dodaj novi proizvod | Expert</PageTitle>
 <h3>Dodaj novi proizvod</h3>
@@ -77,10 +78,25 @@
         var result = await httpClient.PostAsJsonAsync("https://expertshopapi.azurewebsites.net/api/Products", products);
         if (result.IsSuccessStatusCode)
         {
-            navManager.NavigateTo("/Admin/lista-proizvoda");
+            navManager.NavigateTo("/Admin/administration-dash");
         }
         else
             IsError = true;
             StateHasChanged();
+    }
+
+    void ShowNotification(string productName)
+    {
+        var message = new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Proizvod dodan!", Detail = $"Uspješno ste dodali proizvod {productName}", Duration = 5000 };
+        if (!IsError)
+        {
+            NotificationService.Notify(message);
+        }
+        else
+        {
+            message = new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Proizvod nije dodan!", Detail = $"Došlo je do greške prilikom dodavanja proizvoda {productName}", Duration = 5000 };
+            NotificationService.Notify(message);
+        }
+
     }
 }

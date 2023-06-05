@@ -9,32 +9,63 @@
 <RadzenTabs TabPosition="@tabPosition" RenderMode="TabRenderMode.Client">
     <Tabs>
         <RadzenTabsItem Text="Proizvodi">
-                        @foreach(var item in products){
-                <RadzenCard Style="width: 250px;" Class="rz-border-radius-3">
-                    <RadzenRow Gap="0.5rem">
+            <RadzenButton Click="DodajProizvod" Text="Dodaj novi proizvod" ButtonStyle="ButtonStyle.Success" Style="width: 20%;" />
+               <RadzenDataList PageSize="10" WrapItems="true" AllowPaging="true" Data="@products" TItem="Product">
+           <Template Context="proizvod">
+            <RadzenCard Style="width: 250px;" Class="rz-border-radius-3">
+                           <RadzenRow Gap="0.5rem">
+                            </RadzenRow>
+                            <hr style="border: none; background-color: rgba(0,0,0,.08); height: 1px; margin: 1rem 0;" />
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
+                                <RadzenImage Path="@proizvod.ImagePath" Class="rz-border-radius-10" Style="width: 80px; height: 80px;" />
+                                <RadzenStack Gap="0">
+                                    <RadzenText TextStyle="TextStyle.Subtitle1" Class="rz-mb-0"><strong>@(proizvod.ProductName)</strong></RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2" Class="rz-mb-0">@proizvod.ProductDescription</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2" Class="rz-mb-0"><b>Cijena: @proizvod.ProductPrice€</b></RadzenText>
+                                @if (proizvod.Discount > 1)
+                                {
+                                    <RadzenText TextStyle="TextStyle.Body2" Class="rz-mb-0"><b>Popust: @proizvod.Discount%</b></RadzenText>
+                                }
+                                <RadzenButton Click="()=>UrediProizvod(proizvod.Id)" Text="Uredi" ButtonStyle="ButtonStyle.Primary" Style="width: 100%; max-width:100px; margin-bottom:5px; margin-top:10px" />
+                                <RadzenButton Click="()=>ObrisiProizvod(proizvod.Id)" Text="Obriši" ButtonStyle="ButtonStyle.Danger" Style="width: 100%; max-width:100px;" />
+                            </RadzenStack>        
+                        </RadzenStack>
+                </RadzenCard>
+            </Template>
+            </RadzenDataList>
+        </RadzenTabsItem>
+
+            <RadzenTabsItem Text="Kategorije">
+            <RadzenButton Click="DodajKategoriju" Text="Dodaj novu kategoriju" ButtonStyle="ButtonStyle.Success" Style="width: 20%;" />
+                <RadzenDataList PageSize="10" WrapItems="true" AllowPaging="true" Data="@categories" TItem="Category">
+                    <Template Context="kategorija">
+                        <RadzenCard Style="width: 250px;" Class="rz-border-radius-3">
+                            <RadzenRow Gap="0.5rem">
                                 <RadzenColumn Size="4" Class="rz-text-align-right">
-                                    <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Shade="Shade.Lighter" Text=@Convert.ToString(item.ProductPrice) IsPill="true" />
+                                
                                 </RadzenColumn>
                             </RadzenRow>
                             <hr style="border: none; background-color: rgba(0,0,0,.08); height: 1px; margin: 1rem 0;" />
                             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
-                                <RadzenImage Path="@item.ImagePath" Class="rz-border-radius-10" Style="width: 80px; height: 80px;" />
+                                <RadzenImage Path="@kategorija.ImagePath" Class="rz-border-radius-10" Style="width: 80px; height: 80px;" />
                                 <RadzenStack Gap="0">
-                                    <RadzenText TextStyle="TextStyle.Subtitle1" Class="rz-mb-0"><strong>@(item.ProductName)</strong></RadzenText>
-                                <RadzenText TextStyle="TextStyle.Body2" Class="rz-mb-0">@item.ProductDescription</RadzenText>
-                                <RadzenText TextStyle="TextStyle.Caption" Class="rz-mb-0">Cijena: @item.ProductPrice, Popust: @item.Discount</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Subtitle1" Class="rz-mb-0"><strong>@(kategorija.CategoryName)</strong></RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2" Class="rz-mb-0">@kategorija.CategoryDescription</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="rz-mb-0">IsHidden: @kategorija.IsHidden</RadzenText>
+                                <RadzenButton Click="()=>UrediKategoriju(kategorija.Id)" Text="Uredi" ButtonStyle="ButtonStyle.Primary" Style="width: 100%; max-width:100px; margin-bottom:5px; margin-top:10px" />
+                                <RadzenButton Click="()=>ObrisiKategoriju(kategorija.Id)" Text="Obriši" ButtonStyle="ButtonStyle.Danger" Style="width: 100%; max-width:100px;" />
+                                </RadzenStack>
                             </RadzenStack>
-                        </RadzenStack>
-                    </RadzenCard>
-                        }
-                        
+                        </RadzenCard>
+                    </Template>
+                </RadzenDataList>
             </RadzenTabsItem>
             </Tabs>
             </RadzenTabs>
 
    
 
-    @code {
+@code {
 
     List<Product> products = new List<Product>();
     List<Category> categories = new List<Category>();
@@ -47,7 +78,7 @@
 
         categories = await GetCategories();
         products = await GetProduct();
-       
+
     }
 
     private async Task<List<Category>> GetCategories()
@@ -69,5 +100,35 @@
         return products;
     }
 
+    private async Task UrediProizvod(int id)
+    {
+        navManager.NavigateTo($"/Admin/uredi-proizvod/{id}");
+
+    }
+
+    private async Task ObrisiProizvod(int id)
+    {
+        navManager.NavigateTo($"/Admin/brisanje-proizvoda/{id}");
+    }
+
+    private async Task ObrisiKategoriju(int id)
+    {
+        navManager.NavigateTo($"/Admin/brisanje-kategorije/{id}");
+    }
+
+    private async Task UrediKategoriju(int id)
+    {
+        navManager.NavigateTo($"/Admin/uredi-kategoriju/{id}");
+    }
+
+    private async Task DodajProizvod()
+    {
+        navManager.NavigateTo("/Admin/novi-proizvod");
+    }
+
+    private async Task DodajKategoriju()
+    {
+        navManager.NavigateTo("/Admin/nova-kategorija");
+    }
 
     }

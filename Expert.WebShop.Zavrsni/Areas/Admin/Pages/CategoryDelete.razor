@@ -48,7 +48,7 @@
         var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Categories/{id}");
         if (result.IsSuccessStatusCode)
         {
-            navManager.NavigateTo("/Admin/lista-kategorija");  
+            navManager.NavigateTo("/Admin/administration-dash");
         }
         else
         {
