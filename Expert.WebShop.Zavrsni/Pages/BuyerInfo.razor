@@ -3,6 +3,7 @@
 @inject NavigationManager navManager
 @using Expert.WebShop.Zavrsni.Models
 @inject ShoppingCartInMemory shoppingCartInMemory
+@inject NotificationService NotificationService
 <PageTitle>Checkout | Expert</PageTitle>
 @if (IsLoadError)
 {
@@ -43,7 +44,7 @@ else
 @code {
     bool IsLoadError = false;
     bool IsError = false;
-    public string email = "";
+    public string email="";
     public string imePrezime = "";
 
     public async Task Submit()
@@ -53,11 +54,14 @@ else
         foreach(var item in shoppingCartInMemory.SelectedItems)
         {
             BuyItem buyItem = new BuyItem();
+
             buyItem.ProductId = item.ProductId;
             buyItem.OrderId = orderId;
             buyItem.NumberOfItems = item.NumberOfItems;
             buyItem.PricePerProduct = item.Product.ProductPrice;
             buyItem.ProductDiscount = item.Product.Discount;
+            buyItem.OrderedByName = imePrezime;
+            buyItem.OrderedByEmail = email;
             if (buyItem.ProductDiscount > 0)
             {
                 var discount = ((Convert.ToDouble(item.Product.Discount) / 100)
@@ -65,6 +69,7 @@ else
                 var result = Math
                 .Round(Convert.ToDouble(item.Product.ProductPrice) - discount, 2);
                 result = result * item.NumberOfItems;
+
                 buyItem.TotalAmmount = (decimal)result;
             }
             else
@@ -75,22 +80,36 @@ else
             buyItem.IsPayed = false;
             buyItem.IsDelivered = false;
 
+            var response = await httpClient.PostAsJsonAsync($"{Constants.baseUrl}/ShoppingCards", buyItem);
+            if (response.IsSuccessStatusCode)
+            {
+                ShowNotification(item.Product.ProductName);
+                navManager.NavigateTo("/");
+            }
+            else
+            {
+                IsError = true;
+                ShowErrorNotification(item.Product.ProductName);
+                StateHasChanged();
+            }
             
         }
 
-        var response = await httpClient.PostAsJsonAsync($"{Constants.baseUrl}/ShoppingCards", Submit);
-        if (response.IsSuccessStatusCode)
-        {
-            
-            navManager.NavigateTo("/");
-        }
-        else
-        {
-            IsError = true;
-            StateHasChanged();
-        }
+        
 
        
+    }
+
+    void ShowNotification(string productName)
+    {
+        var message = new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Narudžba zaprimljena", Detail = $"Vaša narudžba je uspješno zaprimljena!", Duration = 10000 };
+        NotificationService.Notify(message);
+    }
+
+    void ShowErrorNotification(string productName)
+    {
+        var message = new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Narudžba nije zaprimljena", Detail = $"Vaša narudžba nije zaprimljena! Pokušajte ponovno", Duration = 10000 };
+        NotificationService.Notify(message);
     }
 
 }

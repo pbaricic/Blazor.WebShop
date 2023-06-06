@@ -32,11 +32,7 @@ namespace Expert.WebShop.Zavrsni.Models
             }
             else
             {
-                if (SelectedItems.FirstOrDefault(x => x.ProductId == productId) != null)
-                {
-                   
-                }
-
+                
             }
         }
     }

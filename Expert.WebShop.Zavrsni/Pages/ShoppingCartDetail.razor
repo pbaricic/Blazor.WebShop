@@ -4,9 +4,7 @@
 @inject NavigationManager navManager
 @inject ShoppingCartInMemory shoppingCartInMemory
 
-@{
-    double sum = 0;
-}
+
 
 <PageTitle>Vaša košarica | WebShop</PageTitle>
 <h3 style="text-align:center">Vaša košarica</h3>
@@ -43,12 +41,16 @@
 
                     <RadzenColumn Size="12" SizeMD="6" SizeLG="5">
                         <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H5" Class="rz-mb-0">Količina</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body2">@product.NumberOfItems</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">
+                            @*<div class="rz-p-12 rz-text-align-center">*@
+                                <RadzenNumeric Min="1" @bind-Value="@product.NumberOfItems" @onclick="SumPrice" />
+                           @* </div>*@
+                        </RadzenText>
                     </RadzenColumn>
                     @if (product.Product.Discount<1)
                     {
                         var total = Convert.ToDouble(product.Product.ProductPrice) * Convert.ToDouble(product.NumberOfItems);
-                        sum = sum + total;
+                       
 
                         <RadzenColumn Size="12" SizeMD="6" SizeLG="3" Class="rz-text-align-start rz-text-align-lg-end">
                             <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{total}€") />
@@ -61,7 +63,7 @@
                         var discountedPrice = (Convert.ToDouble(product.Product.ProductPrice) * (Convert.ToDouble(product.Product.Discount)/100));
                         var result = Math.Round(Convert.ToDouble(product.Product.ProductPrice) - discountedPrice,2);
                         result = result * product.NumberOfItems;
-                        sum = sum + result;
+                       
                         <RadzenColumn Size="12" SizeMD="6" SizeLG="3" Class="rz-text-align-start rz-text-align-lg-end">
                             <RadzenBadge BadgeStyle="BadgeStyle.Info" Shade="Shade.Lighter" class="price-badge" Text=@($"{result}€") />
                         </RadzenColumn>
@@ -110,7 +112,12 @@
 @code {
     bool allowVirtualization;
     private List<ShoppingCartInMemory> cart = new List<ShoppingCartInMemory>();
+    public double sum = 0;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await SumPrice();
+    }
 
     private async Task DeleteFromCard(int targetId)
     {
@@ -121,7 +128,65 @@
                 shoppingCartInMemory.SelectedItems.Remove(item);
             }
         }
+        await SumPrice();
+        StateHasChanged();
     }
+
+    public async Task SumPrice()
+    {
+        sum = 0;
+        foreach (var item in shoppingCartInMemory.SelectedItems.OrderBy(x => x.ProductId))
+        {
+            if (item.Product.Discount < 1)
+            {
+                sum = sum + Convert.ToDouble(item.Product.ProductPrice) *
+            Convert.ToDouble(item.NumberOfItems);
+
+            }
+            else
+            {
+
+                var getPrice = Convert.ToDouble(item.Product.ProductPrice);
+
+                var discount = ((Convert.ToDouble(item.Product.Discount) / 100) *
+                Convert.ToDouble(item.Product.ProductPrice));
+
+                getPrice = Math.Round(Convert.ToDouble(item.Product.ProductPrice) - discount, 2);
+
+                sum = sum + (getPrice * item.NumberOfItems);
+
+
+            }
+
+        }
+    }
+
+    public async Task Decrement(int prodId)
+    {
+        var decrease = shoppingCartInMemory.SelectedItems.FirstOrDefault(x => x.ProductId == prodId);
+
+        if (decrease.NumberOfItems > 1)
+        {
+            shoppingCartInMemory.SelectedItems.Remove(decrease);
+            decrease.NumberOfItems = decrease.NumberOfItems - 1;
+            shoppingCartInMemory.SelectedItems.Add(decrease);
+            await SumPrice();
+            StateHasChanged();
+        }
+    }
+
+    public async Task Increment(int prodId)
+    {
+        var decrease = shoppingCartInMemory.SelectedItems.FirstOrDefault(x => x.ProductId == prodId);
+        shoppingCartInMemory.SelectedItems.Remove(decrease);
+
+        decrease.NumberOfItems = decrease.NumberOfItems + 1;
+        shoppingCartInMemory.SelectedItems.Add(decrease);
+        await SumPrice();
+        StateHasChanged();
+    }
+
+  
 
     private async Task Checkout()
     {

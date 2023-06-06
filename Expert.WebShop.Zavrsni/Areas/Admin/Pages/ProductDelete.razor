@@ -44,7 +44,7 @@
     private async Task DeleteProduct(int id)
     {
         if(IsLoadError == false){
-        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Products/{id}");
+        var result = await httpClient.DeleteAsync($"{Constants.baseUrl}/Productsx/{id}");
         if (result.IsSuccessStatusCode)
         {
                 navManager.NavigateTo($"/Admin/administration-dash");

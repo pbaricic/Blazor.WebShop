@@ -29,8 +29,8 @@
                                 var result = Math.Round(Convert.ToDouble(item.ProductPrice) - discountedPrice, 2);
                                 <p class="card-text"><b><span style="color:red;">Akcijska cijena: @result€</span></b></p>
                                 }
-                            <RadzenButton Click="()=>Detalji(item.Id, item.ProductName)" Text="Detalji"></RadzenButton>
-                            <RadzenButton Click="(()=> {shoppingCart.AddToShoppingCart(item.Id); ShowNotification(item.ProductName); })" Text="Dodaj u košaricu"></RadzenButton>
+                            <RadzenButton Click="()=>Detalji(item.Id, item.ProductName)" Text="Detalji" Style="margin-top:5px; margin-bottom:10px"></RadzenButton>
+                            <RadzenButton Click="(()=> {shoppingCart.AddToShoppingCart(item.Id); ShowNotification(item.ProductName); })" Text="Dodaj u košaricu" ButtonStyle="ButtonStyle.Success"></RadzenButton>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,56 @@
+﻿@page "/Admin/Orders"
+@inject HttpClient httpClient
+@inject NavigationManager navManager
+@using Expert.WebShop.Zavrsni.Models
+
+<h3 style="text-align:center">Lista narudžbi</h3>
+
+@foreach (var item in distinctOrders)
+{
+    <h5>Šifra narudžbe: <b>@item.OrderId</b></h5>
+    <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Id proizvoda</th>
+                    <th scope="col">Cijena</th>
+                    <th scope="col">Komada</th>
+                    <th scope="col">Ukupno</th>
+                    <th scope="col">Kupac</th>
+                    <th scope="col">E-mail</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var product in orders.Where(x => x.OrderId == item.OrderId).ToList())
+    {
+        
+                <tr>
+                    <th scope="row">@product.ProductId</th>
+                    <td>@product.PricePerProduct</td>
+                    <td>@product.NumberOfItems</td>
+                    <td>@product.TotalAmmount</td>
+                    <td>@product.OrderedByName</td>
+                    <td>@product.OrderedByEmail</td>
+                </tr>
+
+           
+    }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    List<BuyItem> orders = new List<BuyItem>();
+    List<BuyItem> distinctOrders = new List<BuyItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await httpClient.GetAsync("https://expertshopapi.azurewebsites.net/api/ShoppingCards");
+        if (result.IsSuccessStatusCode)
+        {
+            orders = await result.Content.ReadFromJsonAsync<List<BuyItem>>();
+
+            distinctOrders = orders.DistinctBy(x => x.OrderId).ToList();
+        }
+    }
+}

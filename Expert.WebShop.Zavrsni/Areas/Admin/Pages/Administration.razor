@@ -60,7 +60,12 @@
                     </Template>
                 </RadzenDataList>
             </RadzenTabsItem>
+
+        <RadzenButton Click="Orders" Text="Narudžbe" ButtonStyle="ButtonStyle.Info" />
+
             </Tabs>
+          
+           
             </RadzenTabs>
 
    
@@ -129,6 +134,11 @@
     private async Task DodajKategoriju()
     {
         navManager.NavigateTo("/Admin/nova-kategorija");
+    }
+
+    private async Task Orders()
+    {
+        navManager.NavigateTo("/Admin/Orders");
     }
 
     }
