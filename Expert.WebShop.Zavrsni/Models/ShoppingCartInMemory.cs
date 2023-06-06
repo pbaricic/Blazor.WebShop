@@ -32,7 +32,10 @@ namespace Expert.WebShop.Zavrsni.Models
             }
             else
             {
-                
+                var increase = SelectedItems.FirstOrDefault(x => x.ProductId == productId);
+                SelectedItems.Remove(increase);
+                increase.NumberOfItems = increase.NumberOfItems + 1;
+                SelectedItems.Add(increase);
             }
         }
     }
