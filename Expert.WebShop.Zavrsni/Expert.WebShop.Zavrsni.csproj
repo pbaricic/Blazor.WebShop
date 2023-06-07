@@ -23,4 +23,8 @@
     <Folder Include="Slike\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\slike\360_F_499933117_ZAUBfv3P1HEOsZDrnkbNCt4jc3AodArl.jpg" />
+  </ItemGroup>
+
 </Project>
